@@ -15,10 +15,10 @@ return new class extends Migration
             $table->id();
             $table->foreignId('home_id')->constrained()->onDelete('cascade');
             $table->foreignId('materiel_id')->constrained()->onDelete('cascade');
+            $table->boolean('isActivated');
             $table->timestamps();
         });
     }
-
     /**
      * Reverse the migrations.
      */

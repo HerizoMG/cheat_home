@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->string('price');
             $table->string('description');
-            $table->string('address');
+            $table->string('image')->nullable();
             $table->foreignId('user_id')->constrained()->onDelete('cascade');
             $table->foreignId('home_id')->constrained()->onDelete('cascade');
             $table->timestamps();

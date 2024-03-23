@@ -14,7 +14,6 @@ return new class extends Migration
         Schema::create('offer_materiels', function (Blueprint $table) {
             $table->id();
             $table->string('description');
-            $table->string('price');
             $table->foreignId('materiel_id')->constrained();
             $table->foreignId('user_id')->constrained();
             $table->timestamps();

@@ -5,6 +5,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Home;
 use App\Models\HouseMateriel;
 use App\Models\Materiel;
+use App\Models\OfferHome;
 use App\Models\OfferMateriel;
 use App\Models\Type;
 use App\Models\User;
@@ -67,21 +68,28 @@ class UserController extends Controller
         return response()->json(['message' => 'User deleted']);
     }
 
-    public function postPartner(Request $request, User $user)
+    public function postMateriel(Request $request)
     {
         $validatedData = $request->validate([
             'description' => 'required|string',
+            'libelle' =>'required|string',
             'price' => 'required|string',
         ]);
 
-        $offre = new OfferMateriel();
-        $offre->description = $validatedData['description'];
-        $offre->price = $validatedData['price'];
-        $offre->user_id = $user->id;
+        $type = Type::create(['libelle' => $validatedData['libelle']]);
 
-        $offre->save();
+        $materiel = Materiel::create([
+            'type_id' => $type->id,
+            'price' => $validatedData['price'],
+        ]);
 
-        return response()->json(['message' => 'Offre enregistrée avec succès'], 200);
+        $offre = OfferMateriel::create([
+            'description' => $validatedData['description'],
+            'user_id' => auth()->user()->id,
+            'materiel_id' => $materiel->id,
+        ]);
+
+        return response()->json($offre);
     }
 
     public function createHome(Request $request, User $user)
@@ -90,38 +98,90 @@ class UserController extends Controller
             'address' => 'required|string',
             'price' => 'required|string',
             'libelle' => 'required|string',
+            'isActivated' => 'required|boolean'
         ]);
 
-        // Créer d'abord le type avec le libellé fourni
         $type = Type::firstOrCreate(['libelle' => $validatedData['libelle']]);
 
-        // Créer le matériel en utilisant le type_id du type créé
         $materiel = Materiel::create([
             'price' => $validatedData['price'],
             'type_id' => $type->id,
         ]);
 
         $user_id = auth()->user()->id;
-        // Créer la maison en utilisant l'adresse, user_id et materiel_id
+
         $home = Home::create([
             'address' => $validatedData['address'],
             'user_id' => $user_id,
             'materiel_id' => $materiel->id,
         ]);
 
-        // Créer la relation entre la maison et le matériel
         $houseMateriel = HouseMateriel::create([
             'home_id' => $home->id,
             'materiel_id' => $materiel->id,
+            'isActivated' => $validatedData['isActivated'],
         ]);
 
         return response()->json($home);
     }
 
+    public  function getAllHome()
+    {
+        $allHome = Home::all();
+
+        return response()->json($allHome);
+    }
+
+    // OFFRE DE MAISON
+    public function offreHome(Request $request)
+    {
+        $validatedData = request()->validate([
+            'description' => 'required|string',
+            'price' => 'required|string',
+            'image' => 'required|image',
+            'home_id' => 'required|integer'
+        ]);
+
+        $filename = '';
+        if ($request->hasFile('image')){
+            $uploadedFile = $request->file('image');
+            $filename = uniqid() . '.' . $uploadedFile->getClientOriginalExtension();
+            $uploadedFile->move(public_path('imageHome'), $filename);
+        }
+
+        $home = Home::find($validatedData['home_id']);
+        if ($home){
+            $offre = OfferHome::create([
+                'description' => $validatedData['description'],
+                'price' => $validatedData['price'],
+                'image' => $filename,
+                'user_id' => auth()->user()->id,
+                'home_id' => $home->id,
+            ]);
+            return response()->json($offre);
+        }
+        return response()->json(['message' => 'Home not found']);
+    }
+
+    // OBTENIR ALL OFFRE DE MAISON
+    public function getAllOfferHome()
+    {
+        $offerHome = OfferHome::with('home', 'user')->get();
+
+        return response()->json($offerHome);
+    }
+
     public function getMaterielByUser()
     {
-        $home  = Home::with('houseMateriel.materiel.type')->where('user_id', auth()->user()->id)->get();
+        $home  = Home::with('houseMateriel.materiel.type')->where('user_id',auth()->user()->id)->get();
 
         return response()->json($home);
+    }
+
+    public function getAllOfferMateriel()
+    {
+        $offerMateriel = OfferMateriel::with('materiel.type')->get();
+
+        return response()->json($offerMateriel);
     }
 }

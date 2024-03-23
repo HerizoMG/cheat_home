@@ -11,6 +11,7 @@ class HouseMateriel extends Model
 
     protected $fillable = [
         'materiel_id',
+        'isActivated',
         'home_id',
     ];
 

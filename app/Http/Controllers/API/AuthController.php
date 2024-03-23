@@ -18,13 +18,14 @@ class AuthController extends Controller
             'password' => 'required|string|confirmed',
             'address' => 'required|string',
             'roles' => 'required|json',
-            'avatar' => 'required|file',
+            'avatar' => 'required|image',
         ]);
 
         $filename = '';
         if ($request->hasFile('avatar')){
-            $filename = uniqid() . '.' . $request->file('avatar')->extension();
-            $request->file('avatar')->storeAs('avatars',$filename);
+            $uploadedFile = $request->file('avatar');
+            $filename = uniqid() . '.' . $uploadedFile->getClientOriginalExtension();
+            $uploadedFile->move(public_path('avatar'), $filename);
         }
 
         $user = User::create([
@@ -54,7 +55,7 @@ class AuthController extends Controller
             'password' => 'required|string',
         ]);
 
-        $user = User::where('email', $field['email'])->first();
+        $user = User::with('home')->where('email', $field['email'])->first();
 
         if (!$user){
             return Response()->json(['message'=> 'email error'],401);

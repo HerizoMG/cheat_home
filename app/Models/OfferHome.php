@@ -12,7 +12,7 @@ class OfferHome extends Model
     protected $fillable = [
         'price',
         'description',
-        'address',
+        'image',
         'user_id',
         'home_id',
     ];

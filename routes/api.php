@@ -30,15 +30,21 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
         Route::apiResource('materiel', MaterielController::class);
         Route::post('/create/home', [UserController::class, 'createHome']);
         Route::get('/get/home/{id}', [UserController::class, 'getMaterielByUser']);
+        Route::post('/offreHome', [UserController::class, 'offreHome']);
     });
 
     // PARTNER
     Route::middleware(['isRole:isPartner'])->group(function (){
-        Route::post('/post', [UserController::class, 'postPartner']);
+        Route::post('/post/materiel', [UserController::class, 'postMateriel']);
     });
 
 });
 
+
+Route::get('/get/offreHome',[UserController::class,'getAllOfferHome']);
+
+Route::get('/get/offer/materiel',[UserController::class,'getAllOfferMateriel']);
+Route::get('/get/all/home',[UserController::class,'getAllHome']);
 
 Route::post('/register',[AuthController::class,'register']);
 Route::post('/login',[AuthController::class,'login']);

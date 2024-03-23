@@ -12,9 +12,9 @@ class Materiel extends Model
     protected $fillable = [
         'type_id',
         'price',
-        'libelle'
+        'libelle',
+        'isPublished',
     ];
-
     public function type()
     {
         return $this->belongsTo(Type::class);

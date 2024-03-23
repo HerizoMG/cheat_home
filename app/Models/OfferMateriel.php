@@ -13,9 +13,7 @@ class OfferMateriel extends Model
         'materiel_id',
         'user_id',
         'description',
-        'price',
     ];
-
     public function materiel()
     {
         return $this->belongsTo(Materiel::class);

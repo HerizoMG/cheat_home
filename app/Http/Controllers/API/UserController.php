@@ -229,10 +229,9 @@ class UserController extends Controller
 
     public function isPublished()
     {
-        $materiel = Materiel::with('type','order','order.user')
+        $materiel = Materiel::with('type','offerMateriel','offerMateriel.user')
             ->where('isPublished', true)
             ->get();
-
         return response()->json($materiel);
     }
     public  function createdMateriel(Request $request, User $user)
@@ -242,6 +241,7 @@ class UserController extends Controller
             'libelle' => 'required|string',
             'image' => 'required|image',
             'isPublished' => 'required|boolean',
+            'description' => 'required|string',
         ]);
 
         $filename = '';
@@ -260,11 +260,14 @@ class UserController extends Controller
             'image' => $filename,
         ]);
 
-        $order = Order::create([
+        $order = OfferMateriel::create([
+            'description' => $validatedData['description'],
             'user_id' => 1,
             'materiel_id' => $materiel->id,
         ]);
 
         return response()->json($materiel);
     }
+
+
 }

@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\API\AuthController;
+use App\Http\Controllers\API\ChatController;
 use App\Http\Controllers\API\MaterielController;
 use App\Http\Controllers\API\UserController;
 use FFMpeg\Format\Video\X264;
@@ -79,4 +80,5 @@ Route::post('/created/materiel', [UserController::class, 'createdMateriel']);
 
 Route::get('/isPublished', [UserController::class, 'isPublished']);
 
+Route::post('/chat', [ChatController::class, 'chat']);
 

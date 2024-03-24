@@ -26,6 +26,8 @@ class MaterielController extends Controller
         $validatedData = $request->validate([
             'price' => 'required|string',
             'libelle' => 'required|string',
+            'isPublished' => 'required|boolean',
+            'image' => 'required|image',
         ]);
 
         // Créer d'abord le type avec le libellé fourni
@@ -35,6 +37,8 @@ class MaterielController extends Controller
         $materiel = Materiel::create([
             'price' => $validatedData['price'],
             'type_id' => $type->id,
+            'isPublished' => $validatedData['isPublished'],
+            'image' => $validatedData['image'],
         ]);
 
         // Retourner une réponse appropriée, par exemple les données du matériel créé

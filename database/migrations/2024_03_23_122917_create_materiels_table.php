@@ -14,6 +14,7 @@ return new class extends Migration
         Schema::create('materiels', function (Blueprint $table) {
             $table->id();
             $table->string('price');
+            $table->string('image');
             $table->boolean('isPublished')->default(false);
             $table->foreignId('type_id')->constrained();
             $table->timestamps();

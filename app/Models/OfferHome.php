@@ -26,4 +26,9 @@ class OfferHome extends Model
     {
         return $this->belongsTo(Home::class);
     }
+
+    public function interesteds()
+    {
+        return $this->hasMany(Interested::class);
+    }
 }

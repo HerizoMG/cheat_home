@@ -11,11 +11,16 @@ class Order extends Model
 
     protected $fillable = [
         'user_id',
-        'material_id',
+        'materiel_id',
     ];
 
     public function user()
     {
         return $this->belongsTo(User::class);
+    }
+
+    public function materiel()
+    {
+        return $this->belongsTo(Materiel::class);
     }
 }

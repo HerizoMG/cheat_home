@@ -71,4 +71,9 @@ class User extends Authenticatable
     {
         return $this->hasMany(OfferMateriel::class);
     }
+
+    public function interested()
+    {
+        return $this->hasMany(Interested::class);
+    }
 }

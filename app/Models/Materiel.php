@@ -20,7 +20,7 @@ class Materiel extends Model
     {
         return $this->belongsTo(Type::class);
     }
-    
+
     public function offerMateriel()
     {
         return $this->hasMany(OfferMateriel::class);

@@ -33,7 +33,7 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
         Route::apiResource('materiel', MaterielController::class);
         Route::post('/create/home', [UserController::class, 'createHome']);
         Route::get('/get/home/{id}', [UserController::class, 'getMaterielByUser']);
-        Route::get('home/{userId}', [UserController::class, 'getHomeByUserId']);
+//        Route::get('home/{userId}', [UserController::class, 'getHomeByUserId']);
 
     });
 
@@ -82,3 +82,10 @@ Route::get('/isPublished', [UserController::class, 'isPublished']);
 
 Route::post('/chat', [ChatController::class, 'chat']);
 
+Route::post('/order', [UserController::class, 'createOrder']);
+
+Route::get('/order/{user_id}', [UserController::class, 'showOrder']);
+
+Route::get('home/{user_id}', [UserController::class, 'homeUserAndMaterielById']);
+
+Route::get('interested/{user_id}', [UserController::class, 'notifyUser']);

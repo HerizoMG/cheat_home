@@ -30,7 +30,6 @@ class UserController extends Controller
     {
         //
     }
-
     /**
      * Display the specified resource.
      */
@@ -39,7 +38,6 @@ class UserController extends Controller
         $user = User::find($user->id);
         return response()->json($user);
     }
-
     /**
      * Update the specified resource in storage.
      */
@@ -59,7 +57,6 @@ class UserController extends Controller
         $user->update($validatedData);
         return response()->json($user);
     }
-
     /**
      * Remove the specified resource from storage.
      */
@@ -69,7 +66,6 @@ class UserController extends Controller
 
         return response()->json(['message' => 'User deleted']);
     }
-
     public function postMateriel(Request $request)
     {
         $validatedData = $request->validate([
@@ -93,21 +89,29 @@ class UserController extends Controller
 
         return response()->json($offre);
     }
-
     public function createHome(Request $request, User $user)
     {
         $validatedData = $request->validate([
             'address' => 'required|string',
             'price' => 'required|string',
             'libelle' => 'required|string',
-            'isActivated' => 'required|boolean'
+            'isActivated' => 'required|boolean',
+            'image' => 'required|image'
         ]);
+
+        $filename = '';
+        if ($request->hasFile('image')){
+            $uploadedFile = $request->file('image');
+            $filename = uniqid() . '.' . $uploadedFile->getClientOriginalExtension();
+            $uploadedFile->move(public_path('imageHome'), $filename);
+        }
 
         $type = Type::firstOrCreate(['libelle' => $validatedData['libelle']]);
 
         $materiel = Materiel::create([
             'price' => $validatedData['price'],
             'type_id' => $type->id,
+            'image' =>$filename
         ]);
 
         $user_id = auth()->user()->id;
@@ -126,14 +130,12 @@ class UserController extends Controller
 
         return response()->json($home);
     }
-
     public  function getAllHome()
     {
         $allHome = Home::all();
 
         return response()->json($allHome);
     }
-
     // OFFRE DE MAISON
     public function offreHome(Request $request)
     {
@@ -165,7 +167,6 @@ class UserController extends Controller
         }
         return response()->json(['message' => 'Home not found'], 404);
     }
-
     // OBTENIR ALL OFFRE DE MAISON
     public function getAllOfferHome()
     {
@@ -173,21 +174,18 @@ class UserController extends Controller
 
         return response()->json($offerHome);
     }
-
     public function getMaterielByUser()
     {
         $home  = Home::with('houseMateriel.materiel.type')->where('user_id',auth()->user()->id)->get();
 
         return response()->json($home);
     }
-
     public function getAllOfferMateriel()
     {
         $offerMateriel = OfferMateriel::with('materiel.type')->get();
 
         return response()->json($offerMateriel);
     }
-
     public function getHomeByUserId($userId)
     {
         $home = Home::where('user_id',$userId)->get();
@@ -196,7 +194,6 @@ class UserController extends Controller
         }
         return response()->json(['message' => 'Home not found']);
     }
-
     public function createInterested()
     {
         $int = Interested::where('user_id', request('user_id'))
@@ -213,7 +210,6 @@ class UserController extends Controller
             return response()->json($interested);
         }
     }
-
     public function isInterested($offer_home_id,$user_id)
     {
         $interested = Interested::where('user_id', $user_id)
@@ -226,7 +222,6 @@ class UserController extends Controller
             return response()->json([], 404);
         }
     }
-
     public function isPublished()
     {
         $materiel = Materiel::with('type','offerMateriel','offerMateriel.user')
@@ -267,6 +262,44 @@ class UserController extends Controller
         ]);
 
         return response()->json($materiel);
+    }
+    public function createOrder(Request $request, User $user)
+    {
+        $validatedData = $request->validate([
+            'quantity' => 'required|string',
+            'materiel_id' =>'required',
+            'user_id' => 'required'
+        ]);
+
+        $order = Order::create([
+            'user_id' => $validatedData['user_id'],
+            'materiel_id' => $validatedData['materiel_id'],
+            'quantity' => $validatedData['quantity'],
+        ]);
+
+        return response()->json($order);
+    }
+    public function showOrder($user_id)
+    {
+        $showOrder = Order::with('user','materiel.type','materiel.offerMateriel.user')->where('user_id', $user_id)->get();
+        if ($showOrder) {
+            return response()->json($showOrder);
+        } else {
+            // Handle the case where no order is found for the given user ID
+            return response()->json(['error' => 'Order not found'], 404);
+        }
+    }
+    public function homeUserAndMaterielById($user_id)
+    {
+        $homeUser = Home::with('user','houseMateriel.materiel.type')->where('user_id',$user_id)->get();
+        return response()->json($homeUser);
+    }
+    public function notifyUser($user_id)
+    {
+        $notifyUser = Interested::join('offer_homes', 'interesteds.offer_home_id', '=', 'offer_homes.id')
+            ->where('offer_homes.user_id', $user_id)
+            ->get();
+        return response()->json($notifyUser);
     }
 
 
